@@ -1,0 +1,17 @@
+.DS_Store
+.coverage
+*.sqlite3
+*.sqlite
+*.log
+*.ini
+*.aux
+*.pdf
+*.gz
+*.tex
+*.p
+*~
+*.*#
+__pycache__/
+*.raw
+venv/
+*.egg-info/
