@@ -159,7 +159,7 @@ def stage_batch_concat(filegroup, inputdir=None, outputdir=None):
             return
 
     if filegroup.past_record:
-        if not click.confirm(("{}_{} has previously been concatenated."
+        if not click.confirm(("{}_{} has previously been concatenated. "
        "Are you sure you wish to proceed?").format(filegroup.recno,
                                                     filegroup.runno)):
             filegroup.passed = False
@@ -248,12 +248,21 @@ def cli(ctx, ignore, force, groups, preview, source, target, log):
             update_directory(target, 'target')
         fgroups = file_checker(directories.get('source'), directories.get('target'), stout=log,
                                exclusive_groups=groups, ignore=ignore)
-        filegroups = file_grouper(fgroups, force=force)
 
-        filegroups = assign_searches(filegroups)
+        filegroups = file_grouper(fgroups, force=force)
         if len(filegroups) == 0:
             click.echo('No files to group!', file=log)
             sys.exit(0)
+
+        click.echo('\n{} filegroup(s) found'.format(len(filegroups)))
+        for filegroup in filegroups:
+            display(filegroup)
+
+        if preview or not click.confirm('Would you like to continue?'):
+            click.echo('Exiting without concatenating anything', file=log)
+            return
+
+        filegroups = assign_searches(filegroups)
 
         for filegroup in filegroups:
             stage_batch_concat(filegroup)
@@ -262,9 +271,6 @@ def cli(ctx, ignore, force, groups, preview, source, target, log):
         if len(filegroups) == 0:
             click.echo('No files to group!', file=log)
             sys.exit(0)
-        if preview:
-            click.echo('Exiting without concatenating anything', file=log)
-            return
         batch_concat(filegroups, outputdir=directories.get('target'))
     else:
         pass
