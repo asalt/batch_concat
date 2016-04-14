@@ -10,6 +10,7 @@ from collections import defaultdict
 from configparser import ConfigParser
 import click
 import pandas as pd
+from tqdm import tqdm # nice double progress bar
 from utils import *
 
 __version__ = '0.9'
@@ -123,14 +124,13 @@ def batch_concat(filegroups, outputdir=None, stout=None):
     if not click.confirm('Would you like to proceed'):
         click.echo('Exiting..', file=stout)
         sys.exit(0)
-    with click.progressbar(filegroups, label='Concatenating files') as filegroups:
-        for filegroup in filegroups:
-            data = list()
-            for file in filegroup:
-                df = pd.read_table(file.path)
-                data.append(filter_output(df))
-                df = pd.concat(data)
-                df.to_csv(os.path.join(outputdir, filegroup.name), index=False, sep='\t')
+    for filegroup in tqdm(filegroups, desc='Total groups'):
+        data = list()
+        for file in tqdm(filegroup, desc=filegroup.name):
+            df = pd.read_table(file.path)
+            data.append(filter_output(df))
+            df = pd.concat(data)
+            df.to_csv(os.path.join(outputdir, filegroup.name), index=False, sep='\t')
 
             if filegroup.updating:
                 update_recrun(filegroup.recno, filegroup.runno, filegroup.searchno)
