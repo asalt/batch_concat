@@ -132,14 +132,14 @@ def batch_concat(filegroups, outputdir=None, stout=None):
             df = pd.concat(data)
             df.to_csv(os.path.join(outputdir, filegroup.name), index=False, sep='\t')
 
-            if filegroup.updating:
-                update_recrun(filegroup.recno, filegroup.runno, filegroup.searchno)
-                delete_concat(filegroup.recno, filegroup.runno, filegroup.searchno)
-            else:
-                insert_new_run(recno=filegroup.recno,
-                               runno=filegroup.runno,
-                               searchno=filegroup.searchno)
-            insert_new_concat(filegroup)
+        if filegroup.updating:
+            update_recrun(filegroup.recno, filegroup.runno, filegroup.searchno)
+            delete_concat(filegroup.recno, filegroup.runno, filegroup.searchno)
+        else:
+            insert_new_run(recno=filegroup.recno,
+                                    runno=filegroup.runno,
+                                    searchno=filegroup.searchno)
+        insert_new_concat(filegroup)
 
 def stage_batch_concat(filegroup, inputdir=None, outputdir=None):
 

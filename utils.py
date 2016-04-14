@@ -57,7 +57,8 @@ def insert_new_run(recno=None, runno=None, searchno=None, path=None):
     c = conn.cursor()
     c.execute("SELECT 1 from exprun where recno=? and runno=? and searchno=?",
               (recno, runno, searchno))
-    if len(c.fetchall()) != 0:
+    fetch = c.fetchall()
+    if len(fetch) != 0:
         click.secho('Warning: Record already exists', fg='red')
         conn.close()
         return
