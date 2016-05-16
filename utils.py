@@ -10,9 +10,18 @@ __db__ = 'batch_concat.sqlite'
 __basedir__ = os.path.expanduser('~')
 parser = ConfigParser()
 
+def identify_column(columns, pat):
+    """Identify a column in a list of columns"""
+    matches = [c for c in columns if pat.search(c)]
+    if len(matches) > 1 or len(matches) == 0:
+        raise ValueError('Cannot match columns correctly.')
+    return matches[0]
+
 def filter_output(df):
     '''Filter the file output because PD2.0 doesn't do it '''
-    return df[(df['Percolator q-Value'] <= 0.05) &
+    q_pat = re.compile('q\s?-?value', re.IGNORECASE)
+    q_value_col = identify_column(df.columns, q_value_col)
+    return df[(df[q_value_col] <= 0.05) &
               (df['Rank'] == 1)]
 
 def make_database(path, stout=None):
