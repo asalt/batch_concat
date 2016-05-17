@@ -20,7 +20,7 @@ def identify_column(columns, pat):
 def filter_output(df):
     '''Filter the file output because PD2.0 doesn't do it '''
     q_pat = re.compile('q\s?-?value', re.IGNORECASE)
-    q_value_col = identify_column(df.columns, q_value_col)
+    q_value_col = identify_column(df.columns, q_pat)
     return df[(df[q_value_col] <= 0.05) &
               (df['Rank'] == 1)]
 
