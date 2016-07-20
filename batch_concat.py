@@ -13,7 +13,7 @@ import pandas as pd
 from tqdm import tqdm # nice double progress bar
 from utils import *
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __author__  = 'Alexander Saltzman'
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
