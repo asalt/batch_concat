@@ -155,7 +155,19 @@ class BatchTest(unittest.TestCase):
                 self.assertEqual(file.name,
                                  '12345_1_TargetPeptideSpectrumMatch_{}'.format(char))
 
+    def test_specify_runno(self):
+        """Test if we can specify a single file group"""
+        groups = {'12347_1_': make_fake_files(12347, 1),
+                  '12347_2_': make_fake_files(12347, 2),
+        }
+        # print(groups.values()
+        filegroups = file_grouper(groups, runno=2, path='.')
+
+        self.assertEqual(len(filegroups), 1)
+        self.assertEqual(filegroups[0].runno, 2)
     # def test_cli_new(self):
         # def
         # runner = CliRunner()
         # runner.invoke(select_files(filegroup, stout=stout), input='0 1 2')
+if __name__ == '__main__':
+    unittest.main()

@@ -65,13 +65,13 @@ class FileGroup(object):
     def recno(self):
         if self.files and not self._recno:
             self.set_rec_run()
-        return self._recno
+        return int(self._recno)
 
     @property
     def runno(self):
         if self.files and not self._runno:
             self.set_rec_run()
-        return self._runno
+        return int(self._runno)
 
     @property
     def name(self):
@@ -173,11 +173,14 @@ def assign_searches(filegroups):
                                           type=int)
     return filegroups
 
-def file_grouper(groups, force=False, path=None):
+def file_grouper(groups, force=False, path=None, runno=None):
 
     filegroups = list()
     for files in groups.values():
         filegroup = FileGroup(files)
+        if runno:
+            # print(filegroup.runno)
+            if filegroup.runno != runno: continue
         filegroup.past_record = previous_concat(filegroup.recno, filegroup.runno, path=path)
         if (not filegroup.past_record or force):
             filegroups.append(filegroup)
@@ -230,7 +233,10 @@ def file_checker(inputdir=None, outputdir=None, target_str='TargetPeptideSpectru
 @click.option('-t', '--target', type=click.Path(exists=True),
               help='Set the target directory.')
 @click.option('-l', '--log', type=click.File('w'), default='-',)
-def cli(ctx, ignore, force, groups, preview, source, target, log):
+@click.option('-r', '--runno', type=int,
+              help='''Constrain to a certain run number.
+              Good for use in conjunction with --groups flag.''')
+def cli(ctx, ignore, force, groups, preview, source, target, log, runno):
 
     if ctx.invoked_subcommand is None:
         click.echo('Running normal batch concat', file=log)
@@ -249,7 +255,7 @@ def cli(ctx, ignore, force, groups, preview, source, target, log):
         fgroups = file_checker(directories.get('source'), directories.get('target'), stout=log,
                                exclusive_groups=groups, ignore=ignore)
 
-        filegroups = file_grouper(fgroups, force=force)
+        filegroups = file_grouper(fgroups, force=force, runno=runno)
         if len(filegroups) == 0:
             click.echo('No files to group!', file=log)
             sys.exit(0)
