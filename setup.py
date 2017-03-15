@@ -15,6 +15,7 @@ setup(
     py_modules=['batch_concat', 'utils', 'test'],
     install_requires=[
         'Click',
+        'tqdm'
     ],
     entry_points="""
     [console_scripts]
