@@ -186,7 +186,7 @@ def file_grouper(groups, force=False, path=None, runno=None):
             filegroups.append(filegroup)
     return filegroups
 
-def file_checker(inputdir=None, outputdir=None, target_str='TargetPeptideSpectrumMatch', ignore=None,
+def file_checker(inputdir=None, outputdir=None, target_str='TargetPeptideSpectrumMatch|psms', ignore=None,
                  exclusive_groups=None, force=False, stout=None):
     """Gets groups of files"""
     if inputdir is None:
@@ -197,9 +197,11 @@ def file_checker(inputdir=None, outputdir=None, target_str='TargetPeptideSpectru
         ignore = tuple()
 
     pat = re.compile(r'^\d{5}_\d+_')
+    psms_re = re.compile(target_str, re.I)
     groups = defaultdict(list)
     for entry in os.scandir(inputdir):
-        if entry.is_file() and target_str in entry.name:
+        # if entry.is_file() and target_str in entry.name:
+        if entry.is_file() and psms_re.search(entry.name):
             group = pat.search(entry.name)
             if group:
                 g = group.group()
