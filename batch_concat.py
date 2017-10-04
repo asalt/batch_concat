@@ -107,8 +107,8 @@ class FileGroup(object):
         self._name = name
 
     def set_rec_run(self):
-        pat_recno = re.compile(r'^\d{5}')
-        pat_runno = re.compile(r'(?<=\d{5}_)(\d+)(?=_)')
+        pat_recno = re.compile(r'^\d{3,5}')
+        pat_runno = re.compile(r'(?<=\d_)(\d+)(?=_)')
         recno = pat_recno.search(self.name)
         runno = pat_runno.search(self.name)
         if recno:
@@ -196,8 +196,9 @@ def file_checker(inputdir=None, outputdir=None, target_str='TargetPeptideSpectru
     if ignore is None:
         ignore = tuple()
 
-    pat = re.compile(r'^\d{5}_\d+_')
+    pat = re.compile(r'^\d{3,5}_\d+_')
     psms_re = re.compile(target_str, re.I)
+    run_re = re.compile(r'^\d+')
     groups = defaultdict(list)
     for entry in os.scandir(inputdir):
         # if entry.is_file() and target_str in entry.name:
@@ -205,10 +206,11 @@ def file_checker(inputdir=None, outputdir=None, target_str='TargetPeptideSpectru
             group = pat.search(entry.name)
             if group:
                 g = group.group()
-                if any(x==int(g[0:5]) for x in ignore):
+                g_run = int(run_re.search(g).group())
+                if any(x==g_run for x in ignore):
                     g = None
                 if exclusive_groups:
-                    if int(g[0:5]) not in exclusive_groups:
+                    if g_run not in exclusive_groups:
                         g = None
                 if g:
                     groups[g].append(entry)
