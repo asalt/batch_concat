@@ -13,7 +13,7 @@ import pandas as pd
 from tqdm import tqdm # nice double progress bar
 from utils import *
 
-__version__ = '0.9.2'
+__version__ = '0.9.3'
 __author__  = 'Alexander Saltzman'
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -34,6 +34,7 @@ class FileGroup(object):
         self.past_record = False
         self.updating = False
         self.passed = True
+        self._added_search = False
 
     def __str__(self):
         return self.name
@@ -86,11 +87,14 @@ class FileGroup(object):
         return self._name
 
     def insert_search(self):
-        pat = re.compile(r'^\d{5}_\d+_')
+        if self._added_search:
+            return
+        pat = re.compile(r'^\d{3,5}_\d+_')
         try:
             self._name = pat.sub('{}{}_'.format(pat.search(self._name).group(), self.searchno), self._name)
+            self._added_search = True
         except AttributeError:
-            pass
+            raise 'Could not assign search'
 
     def set_name(self):
         if len(self.files) < 1:
@@ -232,15 +236,20 @@ def file_checker(inputdir=None, outputdir=None, target_str='TargetPeptideSpectru
 @click.option('-p', '--preview', is_flag=True,
               help='View groups of files that would be concatenated'\
               ' without actually performing the concatenation and exit.')
-@click.option('-s', '--source', type=click.Path(exists=True),
+@click.option('-s', '--source', type=click.Path(exists=True, file_okay=False),
               help='Set the source directory.')
-@click.option('-t', '--target', type=click.Path(exists=True),
+@click.option('-t', '--target', type=click.Path(exists=True, file_okay=False),
               help='Set the target directory.')
 @click.option('-l', '--log', type=click.File('w'), default='-',)
 @click.option('-r', '--runno', type=int,
               help='''Constrain to a certain run number.
               Good for use in conjunction with --groups flag.''')
 def cli(ctx, ignore, force, groups, preview, source, target, log, runno):
+
+    if source:
+        source = os.path.abspath(source)
+    if target:
+        target = os.path.abspath(target)
 
     if ctx.invoked_subcommand is None:
         click.echo('Running normal batch concat', file=log)
@@ -249,9 +258,11 @@ def cli(ctx, ignore, force, groups, preview, source, target, log, runno):
             raise click.Abort
         directories = get_directories()  # get source and target directories
         if directories.get('source') is None and source is None:
-            directories['source'] = click.prompt('Enter source directory', default='.')
+            directories['source'] = click.prompt('Enter source directory', default='.', type=click.Path(exists=True, file_okay=False),
+                                                 value_proc=os.path.abspath)
         if directories.get('target') is None and target is None:
-            directories['target'] = click.prompt('Enter source directory', default='.')
+            directories['target'] = click.prompt('Enter target directory', default='.', type=click.Path(exists=True, file_okay=False),
+                                                 value_proc=os.path.abspath)
         if source and source != directories.get('source'):
             update_directory(source, 'source')
         if target and target != directories.get('target'):
