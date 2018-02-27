@@ -78,7 +78,7 @@ class FileGroup(object):
     def name(self):
         if (self._name and
             self.searchno and not
-            re.search(r'^\d{5}_\d+_\d+_', self._name)):
+            re.search(r'^\d{{5}}_\d+_{}_'.format(self.searchno), self._name)):
             self.insert_search()
         if self.files and not self._name:
             self.set_name()
