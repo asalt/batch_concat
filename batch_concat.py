@@ -219,7 +219,7 @@ def file_checker(inputdir=None, outputdir=None, target_str='TargetPeptideSpectru
                     if g_run not in exclusive_groups:
                         g = None
                 if g:
-                    groups[g].append(str(entry))
+                    groups[g].append(entry)
             else:
                 click.echo('Improper file name : {}'.format(entry.name), file=stout)
     return groups
