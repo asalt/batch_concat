@@ -132,7 +132,7 @@ def batch_concat(filegroups, outputdir=None, stout=None):
     for filegroup in tqdm(filegroups, desc='Total groups'):
         data = list()
         for file in tqdm(filegroup, desc=filegroup.name):
-            df = pd.read_table(file.path)
+            df = pd.read_table(file.absolute())
             data.append(filter_output(df))
             df = pd.concat(data)
             df.to_csv(os.path.join(outputdir, filegroup.name), index=False, sep='\t')
