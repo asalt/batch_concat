@@ -4,6 +4,7 @@ all output files in a directory from Proteome Discoverer
 in a different directory"""
 import sys
 import os
+from pathlib import Path
 import re
 import shutil
 from collections import defaultdict
@@ -204,7 +205,8 @@ def file_checker(inputdir=None, outputdir=None, target_str='TargetPeptideSpectru
     psms_re = re.compile(target_str, re.I)
     run_re = re.compile(r'^\d+')
     groups = defaultdict(list)
-    for entry in os.scandir(inputdir):
+    #for entry in os.scandir(inputdir):
+    for entry in Path(inputdir).rglob("*"):
         # if entry.is_file() and target_str in entry.name:
         if entry.is_file() and psms_re.search(entry.name):
             group = pat.search(entry.name)
@@ -217,7 +219,7 @@ def file_checker(inputdir=None, outputdir=None, target_str='TargetPeptideSpectru
                     if g_run not in exclusive_groups:
                         g = None
                 if g:
-                    groups[g].append(entry)
+                    groups[g].append(str(entry))
             else:
                 click.echo('Improper file name : {}'.format(entry.name), file=stout)
     return groups
